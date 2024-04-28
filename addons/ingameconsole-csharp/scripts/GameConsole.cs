@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace InGameConsole
@@ -9,7 +10,7 @@ namespace InGameConsole
     {
         private static GameConsoleUI _consoleUI;
         private static Dictionary<string, MethodBase> _commands = new();
-        private static List<ICommandable> _instanceRegistry = new();
+        private static Object _context;
 
         public static GameConsoleUI ConsoleUi
         {
@@ -24,25 +25,12 @@ namespace InGameConsole
                 _consoleUI = value;
             }
         }
-
-        public static void RegisterInstance(ICommandable instance)
-        {
-            if (_instanceRegistry.Contains(instance)) return;
-            _instanceRegistry.Add(instance);
-        }
-
-        public static void UnregisterInstance(ICommandable instance)
-        {
-            if (!_instanceRegistry.Contains(instance)) return;
-            _instanceRegistry.Remove(instance);
-        }
-
         
         public static void GetCommands()
         {
             foreach (var type in Assembly.GetCallingAssembly().GetTypes())
             {
-                var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
+                var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public | BindingFlags.Instance);
 
                 foreach (var method in methods)
                 {
@@ -51,16 +39,86 @@ namespace InGameConsole
                     foreach (var attribute in attributes)
                     {
                         _commands.Add(attribute.CommandName ?? method.Name, method);
-                        GD.Print($"Method {method.Name} added.");
+                        GD.Print($"Command: `{attribute.CommandName ?? method.Name}` added.");
                     }
                 }
             }
         }
-    }    
+
+        public static bool SetContext(Object obj)
+        {
+            if (_context == obj || obj is null) return false;
+            _context = obj;
+            return true;
+        }
+
+        public static void RemoveContext()
+        {
+            if (_context is null) return;
+            _context = null;
+        }
+        
+        public static (string commandName, MethodBase method, List<object> args)? GetCommandFromString(string input)
+        {
+            string[] splitString = input.Split(" ");
+            string commandName = splitString[0];
+            List<object> args = new();
+            for (int i = 1; i < splitString.Length; i++)
+            {
+                args.Add(splitString[i]);
+            }
+
+            if (_commands.TryGetValue(commandName, out var method))
+            {
+                return (commandName, method, args);
+            }
+            return null;
+        }
+
+        public static bool RunCommand(string input)
+        {
+            var command = GetCommandFromString(input);
+            if (command is null) return false;
+            
+            if (command.Value.method.IsStatic)
+            {
+                command.Value.method.Invoke(null, command.Value.args.ToArray());
+            }
+            
+            else
+            {
+                if (!_context.GetType().IsInstanceOfType(command.Value.method.DeclaringType))
+                {
+                    GD.Print($"Invalid context for {command.Value.commandName}");
+                    return false;
+                }
+
+                command.Value.method.Invoke(_context, command.Value.args.ToArray());
+                return true;
+            }
+
+            return false;
+        }
+        
+        public static void Print(string input)
+        {
+            _consoleUI.Print(input);
+        }
+        
+        public static void PrintError()
+        {
+            
+        }
+        
+        public static void PrintWaring()
+        {
+            
+        }
+    }
     
     public class CommandAttribute : Attribute
     {
         public string CommandName;
-    } 
+    }
 }
 

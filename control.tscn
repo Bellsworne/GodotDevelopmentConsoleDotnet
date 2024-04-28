@@ -1,3 +1,6 @@
-[gd_scene format=3 uid="uid://crdomhq31fhev"]
+[gd_scene load_steps=2 format=3 uid="uid://crdomhq31fhev"]
+
+[ext_resource type="Script" path="res://deleteme.cs" id="1_sv4od"]
 
 [node name="Control" type="Node"]
+script = ExtResource("1_sv4od")
