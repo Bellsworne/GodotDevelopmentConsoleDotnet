@@ -27,7 +27,6 @@ namespace InGameConsole
 
         private void SubmitInput()
         {
-            
             Print($"> {_inputField.Text}\n");
             GameConsole.RunCommand(_inputField.Text);
             Print("\n");
@@ -39,14 +38,14 @@ namespace InGameConsole
             _outputLabel.AppendText(input);
         }
 
-        public void PrintError()
+        public void PrintError(string input)
         {
-            
+            _outputLabel.AppendText($"[color=red]{input}[/color]");
         }
 
-        public void PrintWarning()
+        public void PrintWarning(string input)
         {
-            
+            _outputLabel.AppendText($"[color=yellow]{input}[/color]");
         }
     }
 }

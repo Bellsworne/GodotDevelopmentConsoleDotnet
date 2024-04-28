@@ -9,8 +9,8 @@ namespace InGameConsole
     public static class GameConsole
     {
         private static GameConsoleUI _consoleUI;
-        private static Dictionary<string, MethodBase> _commands = new();
-        private static Object _context;
+        private static Dictionary<string, MethodBase> _commands = new(StringComparer.OrdinalIgnoreCase);
+        private static Node _context;
 
         public static GameConsoleUI ConsoleUi
         {
@@ -23,6 +23,7 @@ namespace InGameConsole
                     return;
                 }
                 _consoleUI = value;
+                SetContext(_consoleUI.GetTree().Root);
             }
         }
         
@@ -38,24 +39,43 @@ namespace InGameConsole
 
                     foreach (var attribute in attributes)
                     {
-                        _commands.Add(attribute.CommandName ?? method.Name, method);
-                        GD.Print($"Command: `{attribute.CommandName ?? method.Name}` added.");
+                        var commandName = attribute.CommandName ?? method.Name;
+                        _commands.Add(commandName, method);
+                        GD.Print($"{(method.IsStatic ? "Static" : "Instanced")} Command: `{commandName}` added.");
                     }
                 }
             }
         }
 
-        public static bool SetContext(Object obj)
+        public static bool SetContext(Node obj)
         {
-            if (_context == obj || obj is null) return false;
+            if (_context == obj || obj is null)
+            {
+                PrintError("Node not found");
+                return false;
+            }
             _context = obj;
+            Print($"Context switched to {_context.GetPath()}\n");
             return true;
         }
 
-        public static void RemoveContext()
+        [Command]
+        public static bool SetContext(string NodePath)
         {
-            if (_context is null) return;
-            _context = null;
+            var obj = _consoleUI.GetTree().Root.GetNodeOrNull(NodePath);
+            return SetContext(obj);
+        }
+
+        [Command]
+        public static void CurrentContext()
+        {
+            Print(_context.GetPath());
+        }
+
+        [Command]
+        public static void ListChildren()
+        {
+            Print(string.Join("\n", _context.GetChildren().Select(child => child.Name + " : " + child.GetType().FullName)));
         }
         
         public static (string commandName, MethodBase method, List<object> args)? GetCommandFromString(string input)
@@ -89,7 +109,7 @@ namespace InGameConsole
             {
                 if (!command.Value.method.DeclaringType!.IsInstanceOfType(_context))
                 {
-                    GD.Print($"Invalid context for {command.Value.commandName}");
+                    PrintError($"Invalid context for '{command.Value.commandName}', context needs to be instance of type '{command.Value.method.DeclaringType.FullName}'");
                     return false;
                 }
 
@@ -105,14 +125,14 @@ namespace InGameConsole
             _consoleUI.Print(input);
         }
         
-        public static void PrintError()
+        public static void PrintError(string input)
         {
-            
+            _consoleUI.PrintError(input);
         }
         
-        public static void PrintWaring()
+        public static void PrintWarning(string input)
         {
-            
+            _consoleUI.PrintWarning(input);
         }
     }
     

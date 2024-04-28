@@ -8,11 +8,6 @@ public partial class deleteme : Node
 	
 	private float myFloat = 5f;
 
-	public override void _EnterTree()
-	{
-		GameConsole.SetContext(this);
-	}
-
 	[Command]
 	private void Print(string input)
 	{
