@@ -45,4 +45,9 @@ public partial class GameConsoleUI : Control
     {
         _outputLabel.AppendText($"[color=yellow]{input}[/color]\n");
     }
+
+    public void Clear()
+    {
+        _outputLabel.Clear();
+    }
 }

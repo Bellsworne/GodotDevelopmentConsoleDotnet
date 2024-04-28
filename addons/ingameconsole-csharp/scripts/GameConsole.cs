@@ -9,7 +9,7 @@ namespace InGameConsole;
 public static class GameConsole
 {
     private static GameConsoleUI _consoleUI;
-    private static Dictionary<string, (string name, MethodBase method)> _commands = new(StringComparer.OrdinalIgnoreCase);
+    private static Dictionary<string, (CommandAttribute attribute, MethodBase method)> _commands = new(StringComparer.OrdinalIgnoreCase);
     private static Node _context;
 
     public static GameConsoleUI ConsoleUi
@@ -40,7 +40,12 @@ public static class GameConsole
                 foreach (var attribute in attributes)
                 {
                     var commandName = attribute.CommandName ?? method.Name;
-                    _commands.Add(commandName, (commandName, method));
+                    var newAttribute = new CommandAttribute
+                    {
+                        CommandName = commandName,
+                        Description = attribute.Description
+                    };
+                    _commands.Add(commandName, (newAttribute, method));
                     GD.Print($"{(method.IsStatic ? "Static" : "Instanced")} Command: `{commandName}` added.");
                 }
             }
@@ -76,9 +81,10 @@ public static class GameConsole
 
     [Command]
     [Command(CommandName = "ls")]
+    [Command(CommandName = "dir")]
     public static void ListChildren()
     {
-        Print(string.Join("\n", _context.GetChildren().Select(child => child.Name + " : " + child.GetType().FullName)));
+        Print(string.Join("\n", _context.GetChildren().Select(child => $"{child.Name} : [color=yellow]{child.GetType().FullName}[/color]")));
     }
 
     [Command]
@@ -94,6 +100,18 @@ public static class GameConsole
         deleteContext.QueueFree();
         Print("Node destroyed");
     }
+
+    [Command]
+    public static void Help()
+    {
+        Print(string.Join("\n", _commands.Select(command => $"{(command.Value.method.IsStatic ? "" : $"[color=yellow](from '{command.Value.method.DeclaringType!.FullName}' context)[/color] ")}{command.Value.attribute.CommandName} {string.Join(" ", command.Value.method.GetParameters().Select(param => $"[color=cyan]<{param}>[/color]"))}{(string.IsNullOrWhiteSpace(command.Value.attribute.Description) ? "" : $"\t[color=slate_gray]#{command.Value.attribute.Description}[/color]")}")));
+    }
+
+    [Command(Description = "Clear the screen")]
+    public static void Clear()
+    {
+        _consoleUI.Clear();
+    }
     
     public static (string commandName, MethodBase method, List<object> args)? GetCommandFromString(string input)
     {
@@ -107,7 +125,7 @@ public static class GameConsole
 
         if (_commands.TryGetValue(commandName, out var method))
         {
-            return (method.name, method.method, args);
+            return (method.attribute.CommandName, method.method, args);
         }
         return null;
     }
@@ -145,9 +163,7 @@ public static class GameConsole
         catch (Exception ex)
         {
             PrintError(ex.Message);
-            var expectedParameters = command.method.GetParameters();
-            
-            Print($"Usage: {command.commandName} {string.Join(" ", expectedParameters.Select(param => $"<{param}>"))}");
+            Print($"Usage: {command.commandName} {string.Join(" ", command.method.GetParameters().Select(param => $"[color=cyan]<{param}>[/color]"))}");
         }
 
         return false;
@@ -173,4 +189,5 @@ public static class GameConsole
 public class CommandAttribute : Attribute
 {
     public string CommandName;
+    public string Description;
 }
