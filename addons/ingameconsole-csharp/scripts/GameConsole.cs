@@ -104,7 +104,7 @@ public static class GameConsole
     [Command]
     public static void Help()
     {
-        Print(string.Join("\n", _commands.Select(command => $"{(command.Value.method.IsStatic ? "" : $"[color=yellow](from '{command.Value.method.DeclaringType!.FullName}' context)[/color] ")}{command.Value.attribute.CommandName} {string.Join(" ", command.Value.method.GetParameters().Select(param => $"[color=cyan]<{param}>[/color]"))}{(string.IsNullOrWhiteSpace(command.Value.attribute.Description) ? "" : $"\t[color=slate_gray]#{command.Value.attribute.Description}[/color]")}")));
+        Print(string.Join("\n", _commands.Select(command => $"{(command.Value.method.IsStatic ? "" : $"{(command.Value.method.DeclaringType!.IsInstanceOfType(_context) ? "[color=green]" : "[color=yellow]")}(from '{command.Value.method.DeclaringType!.FullName}' context)[/color] ")}{command.Value.attribute.CommandName} {string.Join(" ", command.Value.method.GetParameters().Select(param => $"[color=cyan]<{param}>[/color]"))}{(string.IsNullOrWhiteSpace(command.Value.attribute.Description) ? "" : $"\t[color=slate_gray]#{command.Value.attribute.Description}[/color]")}")));
     }
 
     [Command(Description = "Clear the screen")]
@@ -132,6 +132,7 @@ public static class GameConsole
 
     public static bool RunCommand(string input)
     {
+        if (string.IsNullOrWhiteSpace(input)) return false;
         var command = GetCommandFromString(input);
         if (command is null)
         {
