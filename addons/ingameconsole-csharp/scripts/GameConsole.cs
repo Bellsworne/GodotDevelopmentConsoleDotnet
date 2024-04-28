@@ -87,7 +87,7 @@ namespace InGameConsole
             
             else
             {
-                if (!_context.GetType().IsInstanceOfType(command.Value.method.DeclaringType))
+                if (!command.Value.method.DeclaringType!.IsInstanceOfType(_context))
                 {
                     GD.Print($"Invalid context for {command.Value.commandName}");
                     return false;
