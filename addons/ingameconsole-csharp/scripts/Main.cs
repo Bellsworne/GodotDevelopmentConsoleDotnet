@@ -2,21 +2,19 @@ using Godot;
 using System;
 
 
-namespace InGameConsole
+namespace InGameConsole;
+
+[Tool]
+public partial class Main : EditorPlugin
 {
-    [Tool]
-    public partial class Main : EditorPlugin
+    private const string GAME_CONSOLE_UI_PATH = "res://addons/ingameconsole-csharp/scenes/GameConsole.tscn";
+    public override void _EnablePlugin()
     {
-        private const string GAME_CONSOLE_UI_PATH = "res://addons/ingameconsole-csharp/scenes/GameConsole.tscn";
-        public override void _EnablePlugin()
-        {
-            AddAutoloadSingleton("GameConsole", GAME_CONSOLE_UI_PATH);
-        }
-        
-        public override void _DisablePlugin()
-        {
-            RemoveAutoloadSingleton("GameConsole");
-        }
-        
+        AddAutoloadSingleton("GameConsole", GAME_CONSOLE_UI_PATH);
+    }
+    
+    public override void _DisablePlugin()
+    {
+        RemoveAutoloadSingleton("GameConsole");
     }
 }
