@@ -60,6 +60,7 @@ public static class GameConsole
     }
 
     [Command]
+    [Command(CommandName = "cd")]
     public static bool SetContext(string NodePath)
     {
         var obj = _consoleUI.GetTree().Root.GetNodeOrNull(NodePath);
@@ -67,15 +68,23 @@ public static class GameConsole
     }
 
     [Command]
+    [Command(CommandName = "pwd")]
     public static void CurrentContext()
     {
         Print(_context.GetPath());
     }
 
     [Command]
+    [Command(CommandName = "ls")]
     public static void ListChildren()
     {
         Print(string.Join("\n", _context.GetChildren().Select(child => child.Name + " : " + child.GetType().FullName)));
+    }
+
+    [Command]
+    public static void Destroy()
+    {
+        _context.QueueFree();
     }
     
     public static (string commandName, MethodBase method, List<object> args)? GetCommandFromString(string input)
@@ -98,7 +107,11 @@ public static class GameConsole
     public static bool RunCommand(string input)
     {
         var command = GetCommandFromString(input);
-        if (command is null) return false;
+        if (command is null)
+        {
+            PrintError("Unknown command");
+            return false;
+        }
         
         if (command.Value.method.IsStatic)
         {
@@ -148,6 +161,7 @@ public static class GameConsole
     }
 }
 
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public class CommandAttribute : Attribute
 {
     public string CommandName;
