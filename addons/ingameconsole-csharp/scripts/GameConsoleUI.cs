@@ -14,13 +14,19 @@ public partial class GameConsoleUI : Control
     {
         GameConsole.ConsoleUi = this;
         GameConsole.GetCommands();
+
+        _inputField.TextSubmitted += text => SubmitInput();
     }
 
     public override void _Process(double delta)
     {
-        if (Input.IsActionJustPressed("accept") && _inputField.HasFocus())
+        if (Input.IsActionJustPressed("console"))
         {
-            SubmitInput();
+            Visible = !Visible;
+            if (Visible)
+            {
+                _inputField.Clear();
+            }
         }
     }
 
