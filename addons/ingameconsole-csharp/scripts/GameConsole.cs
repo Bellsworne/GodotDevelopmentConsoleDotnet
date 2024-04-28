@@ -63,7 +63,7 @@ public static class GameConsole
     [Command(CommandName = "cd")]
     public static bool SetContext(string NodePath)
     {
-        var obj = _consoleUI.GetTree().Root.GetNodeOrNull(NodePath);
+        var obj = _context.GetNodeOrNull(NodePath);
         return SetContext(obj);
     }
 
@@ -84,7 +84,15 @@ public static class GameConsole
     [Command]
     public static void Destroy()
     {
-        _context.QueueFree();
+        if (_context == _context.GetTree().Root)
+        {
+            PrintError("Cannot destroy /root");
+            return;
+        }
+        var deleteContext = _context;
+        SetContext(_context.GetParent());
+        deleteContext.QueueFree();
+        Print("Node destroyed");
     }
     
     public static (string commandName, MethodBase method, List<object> args)? GetCommandFromString(string input)
