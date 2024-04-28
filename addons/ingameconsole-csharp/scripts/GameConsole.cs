@@ -76,7 +76,7 @@ public static class GameConsole
     [Command(CommandName = "pwd")]
     public static void CurrentContext()
     {
-        Print(_context.GetPath());
+        Print($"{_context.GetPath()} : [color=green]{_context.GetType().FullName}[/color]");
     }
 
     [Command]
