@@ -1,6 +1,6 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InGameConsole-c#", "InGameConsole-c#.csproj", "{D930DECF-9C2A-49A6-A8DA-19A469EE8569}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InGameConsole-csharp", "InGameConsole-csharp.csproj", "{D930DECF-9C2A-49A6-A8DA-19A469EE8569}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

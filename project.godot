@@ -12,7 +12,7 @@ config_version=5
 
 config/name="InGameConsole-csharp"
 run/main_scene="res://control.tscn"
-config/features=PackedStringArray("4.2", "GL Compatibility")
+config/features=PackedStringArray("4.2", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -21,7 +21,7 @@ GameConsole="*res://addons/ingameconsole-csharp/scenes/GameConsole.tscn"
 
 [dotnet]
 
-project/assembly_name="InGameConsole-c#"
+project/assembly_name="InGameConsole-csharp"
 
 [editor_plugins]
 

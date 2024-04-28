@@ -2,7 +2,7 @@ using Godot;
 using System;
 using InGameConsole;
 
-public class deleteme : Node, ICommandable
+public partial class deleteme : Node, ICommandable
 {
 	
 	
