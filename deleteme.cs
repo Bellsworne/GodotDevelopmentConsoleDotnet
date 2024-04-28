@@ -2,7 +2,7 @@ using Godot;
 using System;
 using InGameConsole;
 
-public partial class deleteme : Node, ICommandable
+public partial class deleteme : Node
 {
 	
 	
@@ -18,15 +18,5 @@ public partial class deleteme : Node, ICommandable
 	private static void HelloCommand()
 	{
 		
-	}
-
-	public void Register()
-	{
-		GameConsole.RegisterInstance(this);
-	}
-
-	public void Unregister()
-	{
-		GameConsole.UnregisterInstance(this);
 	}
 }

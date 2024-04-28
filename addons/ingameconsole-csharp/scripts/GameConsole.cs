@@ -40,9 +40,8 @@ namespace InGameConsole
         
         public static void GetCommands()
         {
-            foreach (var instance in _instanceRegistry)
+            foreach (var type in Assembly.GetCallingAssembly().GetTypes())
             {
-                var type = instance.GetType();
                 var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public);
 
                 foreach (var method in methods)
@@ -52,6 +51,7 @@ namespace InGameConsole
                     foreach (var attribute in attributes)
                     {
                         _commands.Add(attribute.CommandName ?? method.Name, method);
+                        GD.Print($"Method {method.Name} added.");
                     }
                 }
             }

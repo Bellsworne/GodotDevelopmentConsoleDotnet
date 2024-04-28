@@ -8,7 +8,6 @@ namespace InGameConsole
     {
         public override void _EnterTree()
         {
-            GD.Print("WTF");
             GameConsole.ConsoleUi = this;
             GameConsole.GetCommands();
         }
