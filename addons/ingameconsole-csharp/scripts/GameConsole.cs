@@ -119,7 +119,7 @@ public static class GameConsole
         Print("Node destroyed");
     }
 
-    [Command(Description = "-a = all methods including ones for other contexts")]
+    [Command(Description = "-a = include methods requiring a context you haven't got selected")]
     public static void Help(params string[] args)
     {
         var includeAll = args.Contains("-a", StringComparer.CurrentCultureIgnoreCase);
