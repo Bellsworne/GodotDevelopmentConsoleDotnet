@@ -35,4 +35,10 @@ public partial class deleteme : Node
 	{
 		GameConsole.Print((num * num).ToString());
 	}
+
+	[Command]
+	private static void NodeTest(Node test)
+	{
+		GameConsole.Print(test.Name);
+	}
 }

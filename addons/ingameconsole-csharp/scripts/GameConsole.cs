@@ -12,6 +12,10 @@ public static class GameConsole
     private static GameConsoleUI _consoleUI;
     private static Dictionary<string, (CommandAttribute attribute, MethodBase method)> _commands = new(StringComparer.OrdinalIgnoreCase);
     private static Node _context;
+    private static Dictionary<Type, Func<string, object>> _parsers = new()
+    {
+        { typeof(Node), (nodePath) => _context.GetNodeOrNull(nodePath) }
+    };
 
     private const string CommandPattern = "\"(?<val>[^\"]+)\"|'(?<val>[^']+)'|(?<val>[^\\s]+)";
     
@@ -200,11 +204,10 @@ public static class GameConsole
             return true;
         }
 
-        var parseMethod = parameterType.GetMethod("Parse", new[]{ typeof(string) });
-
-        if (parseMethod is not null){
+        if (_parsers.ContainsKey(parameterType))
+        {
             try{
-                parsedValue = parseMethod.Invoke(null, new object[]{ parameterString });
+                parsedValue = _parsers[parameterType].Invoke(parameterString);
                 return true;
             }
             catch
@@ -212,6 +215,23 @@ public static class GameConsole
                 parsedValue = null;
                 return false;
                 // throw new Exception($"Unable to parse parameter type: {parameterType}");
+            }
+        }
+        else
+        {
+            var parseMethod = parameterType.GetMethod("Parse", new[]{ typeof(string) });
+
+            if (parseMethod is not null){
+                try{
+                    parsedValue = parseMethod.Invoke(null, new object[]{ parameterString });
+                    return true;
+                }
+                catch
+                {
+                    parsedValue = null;
+                    return false;
+                    // throw new Exception($"Unable to parse parameter type: {parameterType}");
+                }
             }
         }
 
