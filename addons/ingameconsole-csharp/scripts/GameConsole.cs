@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace InGameConsole;
 
@@ -12,6 +13,8 @@ public static class GameConsole
     private static Dictionary<string, (CommandAttribute attribute, MethodBase method)> _commands = new(StringComparer.OrdinalIgnoreCase);
     private static Node _context;
 
+    private const string CommandPattern = "\"(?<val>[^\"]+)\"|'(?<val>[^']+)'|(?<val>[^\\s]+)";
+    
     public static GameConsoleUI ConsoleUi
     {
         get => _consoleUI;
@@ -115,7 +118,8 @@ public static class GameConsole
     
     public static (string commandName, MethodBase method, List<object> args)? GetCommandFromString(string input)
     {
-        var splitString = input.Split(" ");
+        var splitString = Regex.Matches(input, CommandPattern).Select(m => m.Groups["val"].Value).ToArray();
+        GD.Print(string.Join(", ", splitString));
         var commandName = splitString[0];
         List<object> args = new();
         for (var splitIndex = 1; splitIndex < splitString.Length; splitIndex++)
