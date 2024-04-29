@@ -160,6 +160,27 @@ public static class GameConsole
 
     private static bool ExecuteCommand(object? obj, (string commandName, MethodBase method, List<object> args) command)
     {
+        var parameters = command.method.GetParameters();
+        for (var argIndex = 0; argIndex < command.args.Count; argIndex++)
+        {
+            if (parameters.Length < argIndex + 1)
+            {
+                Print($"Usage: {command.commandName} {string.Join(" ", command.method.GetParameters().Select(param => $"[color=cyan]<{param}>[/color]"))}");
+                return false;
+            }
+
+            object val;
+            if (TryParseParameter(parameters[argIndex].ParameterType, (string)command.args[argIndex], out val))
+            {
+                command.args[argIndex] = val;
+            }
+            else
+            {
+                PrintError($"Format Exception: Could not parse '{command.args[argIndex]}' as '{parameters[argIndex].ParameterType}'");
+                Print($"Usage: {command.commandName} {string.Join(" ", command.method.GetParameters().Select(param => $"[color=cyan]<{param}>[/color]"))}");
+                return false;
+            }
+        }
         try
         {
             command.method.Invoke(obj, command.args.ToArray());
@@ -173,7 +194,32 @@ public static class GameConsole
 
         return false;
     }
-    
+
+    private static bool TryParseParameter(Type parameterType, string parameterString, out object parsedValue){
+        if (parameterType == typeof(string)){
+            parsedValue = parameterString;
+            return true;
+        }
+
+        var parseMethod = parameterType.GetMethod("Parse", new[]{ typeof(string) });
+
+        if (parseMethod is not null){
+            try{
+                parsedValue = parseMethod.Invoke(null, new object[]{ parameterString });
+                return true;
+            }
+            catch
+            {
+                parsedValue = null;
+                return false;
+                // throw new Exception($"Unable to parse parameter type: {parameterType}");
+            }
+        }
+
+        parsedValue = null;
+        return false;
+    }
+
     public static void Print(string input)
     {
         _consoleUI.Print(input);

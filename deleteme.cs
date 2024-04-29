@@ -31,4 +31,10 @@ public partial class deleteme : Node
 	{
 		GameConsole.Print("Hello!");
 	}
+
+	[Command]
+	private static void Square(int num)
+	{
+		GameConsole.Print((num * num).ToString());
+	}
 }
