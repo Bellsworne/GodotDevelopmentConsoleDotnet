@@ -69,9 +69,9 @@ public static class GameConsole
 
     [Command]
     [Command(CommandName = "cd")]
-    public static bool SetContext(string NodePath)
+    public static bool SetContext(string nodePath)
     {
-        var obj = _context.GetNodeOrNull(NodePath);
+        var obj = _context.GetNodeOrNull(nodePath);
         return SetContext(obj);
     }
 
@@ -158,7 +158,7 @@ public static class GameConsole
         return false;
     }
 
-    private static bool ExecuteCommand(object? obj, (string commandName, MethodBase method, List<object> args) command)
+    private static bool ExecuteCommand(object obj, (string commandName, MethodBase method, List<object> args) command)
     {
         var parameters = command.method.GetParameters();
         for (var argIndex = 0; argIndex < command.args.Count; argIndex++)
@@ -169,8 +169,7 @@ public static class GameConsole
                 return false;
             }
 
-            object val;
-            if (TryParseParameter(parameters[argIndex].ParameterType, (string)command.args[argIndex], out val))
+            if (TryParseParameter(parameters[argIndex].ParameterType, (string)command.args[argIndex], out var val))
             {
                 command.args[argIndex] = val;
             }

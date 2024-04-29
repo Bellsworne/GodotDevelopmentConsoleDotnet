@@ -1,23 +1,21 @@
 using Godot;
-using System;
 using InGameConsole;
 
 public partial class deleteme : Node
 {
-	
-	
-	private float myFloat = 5f;
+	private string _printPrefix = "Instanced: ";
+	private string _helloMessage = "Hello!";
 
 	[Command]
 	private void Print(string input)
 	{
-		GameConsole.Print(input);
+		GameConsole.Print(_printPrefix + input);
 	}
 	
 	[Command(CommandName = "Hello")]
 	private void HelloCommand()
 	{
-		GameConsole.Print("Hello!");
+		GameConsole.Print(_helloMessage);
 	}
 	
 	[Command]

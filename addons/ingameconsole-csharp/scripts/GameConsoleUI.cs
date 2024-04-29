@@ -1,5 +1,4 @@
 using Godot;
-using System;
 
 namespace InGameConsole;
 
@@ -15,7 +14,7 @@ public partial class GameConsoleUI : Control
         GameConsole.ConsoleUi = this;
         GameConsole.GetCommands();
 
-        _inputField.TextSubmitted += text => SubmitInput();
+        _inputField.TextSubmitted += _ => SubmitInput();
     }
 
     public override void _Process(double delta)
