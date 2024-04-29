@@ -119,10 +119,11 @@ public static class GameConsole
         Print("Node destroyed");
     }
 
-    [Command]
-    public static void Help()
+    [Command(Description = "-a = all methods including ones for other contexts")]
+    public static void Help(params string[] args)
     {
-        Print(string.Join("\n", _commands.Select(command => $"{(command.Value.method.IsStatic ? "" : $"{(command.Value.method.DeclaringType!.IsInstanceOfType(_context) ? "[color=green]" : "[color=yellow]")}(from '{command.Value.method.DeclaringType!.FullName}' context)[/color] ")}{command.Value.attribute.CommandName} {string.Join(" ", command.Value.method.GetParameters().Select(param => $"[color=cyan]<{param}>[/color]"))}{(string.IsNullOrWhiteSpace(command.Value.attribute.Description) ? "" : $"\t[color=slate_gray]#{command.Value.attribute.Description}[/color]")}")));
+        var includeAll = args.Contains("-a", StringComparer.CurrentCultureIgnoreCase);
+        Print(string.Join("\n", _commands.Where(command => includeAll || command.Value.method.IsStatic || command.Value.method.DeclaringType!.IsInstanceOfType(_context)).Select(command => $"{(command.Value.method.IsStatic ? "" : $"{(command.Value.method.DeclaringType!.IsInstanceOfType(_context) ? "[color=green]" : "[color=yellow]")}(from '{command.Value.method.DeclaringType!.FullName}' context)[/color] ")}{GetCommandUsage(command.Value.attribute.CommandName, command.Value.method)}{(string.IsNullOrWhiteSpace(command.Value.attribute.Description) ? "" : $"\t[color=slate_gray]#{command.Value.attribute.Description}[/color]")}")));
     }
 
     [Command(Description = "Clear the screen")]
@@ -173,26 +174,67 @@ public static class GameConsole
         return false;
     }
 
+    private static string GetCommandUsage(string commandName, MethodBase method)
+    {
+        return $"{commandName} {string.Join(" ", method.GetParameters().Select(param => $"[color=cyan]<{(param.IsDefined(typeof(ParamArrayAttribute)) ? "params ":"")}{param}>[/color]"))}";
+    }
+    
+    private static void PrintUsage(string commandName, MethodBase method)
+    {
+        Print($"Usage: {GetCommandUsage(commandName, method)}");
+    }
+
     private static bool ExecuteCommand(object obj, (string commandName, MethodBase method, List<object> args) command)
     {
         var parameters = command.method.GetParameters();
-        for (var argIndex = 0; argIndex < command.args.Count; argIndex++)
+        for (var parameterIndex = 0; parameterIndex < parameters.Length; parameterIndex++)
         {
-            if (parameters.Length < argIndex + 1)
+            if (parameters[parameterIndex].IsDefined(typeof(ParamArrayAttribute), false))
             {
-                Print($"Usage: {command.commandName} {string.Join(" ", command.method.GetParameters().Select(param => $"[color=cyan]<{param}>[/color]"))}");
-                return false;
+                var paramList = Activator.CreateInstance(typeof(List<>).MakeGenericType(parameters[parameterIndex].ParameterType.GetElementType()!));
+                for (var argIndex = parameterIndex; argIndex < command.args.Count; argIndex++)
+                {
+                    if (TryParseParameter(parameters[parameterIndex].ParameterType.GetElementType(), (string)command.args[argIndex],
+                            out var val))
+                    {
+                        paramList.GetType().GetMethod("Add").Invoke(paramList, new[] { val });
+                        // command.args[argIndex] = val;
+                    }
+                    else
+                    {
+                        PrintError($"Format Exception: Could not parse '{command.args[parameterIndex]}' as '{parameters[parameterIndex].ParameterType}'");
+                        PrintUsage(command.commandName, command.method);
+                        return false;
+                    }
+                }
+                command.args = command.args.Take(parameterIndex).ToList();
+                command.args.Add(paramList.GetType().GetMethod("ToArray").Invoke(paramList, null));
             }
-
-            if (TryParseParameter(parameters[argIndex].ParameterType, (string)command.args[argIndex], out var val))
+            else if (parameterIndex >= command.args.Count)
             {
-                command.args[argIndex] = val;
+                if (parameters[parameterIndex].IsOptional)
+                {
+                    command.args.Add(Type.Missing);
+                }
+                else
+                {
+                    PrintError("Not enough arguments passed");
+                    PrintUsage(command.commandName, command.method);
+                    return false;
+                }
             }
             else
             {
-                PrintError($"Format Exception: Could not parse '{command.args[argIndex]}' as '{parameters[argIndex].ParameterType}'");
-                Print($"Usage: {command.commandName} {string.Join(" ", command.method.GetParameters().Select(param => $"[color=cyan]<{param}>[/color]"))}");
-                return false;
+                if (TryParseParameter(parameters[parameterIndex].ParameterType, (string)command.args[parameterIndex], out var val))
+                {
+                    command.args[parameterIndex] = val;
+                }
+                else
+                {
+                    PrintError($"Format Exception: Could not parse '{command.args[parameterIndex]}' as '{parameters[parameterIndex].ParameterType}'");
+                    PrintUsage(command.commandName, command.method);
+                    return false;
+                }
             }
         }
         try
@@ -203,7 +245,7 @@ public static class GameConsole
         catch (Exception ex)
         {
             PrintError(ex.Message);
-            Print($"Usage: {command.commandName} {string.Join(" ", command.method.GetParameters().Select(param => $"[color=cyan]<{param}>[/color]"))}");
+            PrintUsage(command.commandName, command.method);
         }
 
         return false;
