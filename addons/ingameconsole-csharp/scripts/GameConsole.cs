@@ -66,7 +66,8 @@ public static class GameConsole
                     var newAttribute = new CommandAttribute
                     {
                         CommandName = commandName,
-                        Description = attribute.Description
+                        Description = attribute.Description,
+                        Usage = attribute.Usage,
                     };
                     _commands.Add(commandName, (newAttribute, method));
                     GD.Print($"{(method.IsStatic ? "Static" : "Instanced")} Command: `{commandName}` added.");
@@ -119,7 +120,7 @@ public static class GameConsole
         Print("Node destroyed");
     }
 
-    [Command(Description = "-a = include methods requiring a context you haven't got selected")]
+    [Command(Usage = "[-a]", Description = "-a = include methods requiring a context you haven't got selected")]
     public static void Help(params string[] args)
     {
         var includeAll = args.Contains("-a", StringComparer.CurrentCultureIgnoreCase);
@@ -176,7 +177,15 @@ public static class GameConsole
 
     private static string GetCommandUsage(string commandName, MethodBase method)
     {
-        return $"{commandName} {string.Join(" ", method.GetParameters().Select(param => $"[color=cyan]<{(param.IsDefined(typeof(ParamArrayAttribute)) ? "params ":"")}{param}>[/color]"))}";
+        var paramUsage = _commands[commandName].attribute.Usage;
+        if (string.IsNullOrWhiteSpace(paramUsage))
+        {
+            paramUsage = string.Join(" ",
+                method.GetParameters().Select(param =>
+                    $"<{(param.IsDefined(typeof(ParamArrayAttribute)) ? "params " : "")}{param}>"));
+        }
+
+        return $"{commandName} [color=cyan]{paramUsage}[/color]";
     }
     
     private static void PrintUsage(string commandName, MethodBase method)
@@ -313,4 +322,5 @@ public class CommandAttribute : Attribute
 {
     public string CommandName;
     public string Description;
+    public string Usage;
 }
