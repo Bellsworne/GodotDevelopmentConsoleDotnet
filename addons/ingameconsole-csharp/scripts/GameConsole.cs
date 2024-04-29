@@ -14,7 +14,23 @@ public static class GameConsole
     private static Node _context;
     private static Dictionary<Type, Func<string, object>> _parsers = new()
     {
-        { typeof(Node), (nodePath) => _context.GetNodeOrNull(nodePath) }
+        { typeof(Node), (nodePath) => _context.GetNodeOrNull(nodePath) },
+        {
+            typeof(Vector3), (vectorString) =>
+            {
+                var amounts = vectorString.TrimStart('(').TrimEnd(')').Split(",").Select(val => val.Trim()).ToArray();
+                if (amounts.Length != 3) return null;
+                return new Vector3(float.Parse(amounts[0]), float.Parse(amounts[1]), float.Parse(amounts[2]));
+            }
+        },
+        {
+            typeof(Vector2), (vectorString) =>
+            {
+                var amounts = vectorString.TrimStart('(').TrimEnd(')').Split(",").Select(val => val.Trim()).ToArray();
+                if (amounts.Length != 2) return null;
+                return new Vector2(float.Parse(amounts[0]), float.Parse(amounts[1]));
+            }
+        }
     };
 
     private const string CommandPattern = "(?<val>(\\([^\\)]+\\)))|\"(?<val>[^\"]+)\"|'(?<val>[^']+)'|(?<val>[^\\s]+)";
@@ -89,6 +105,7 @@ public static class GameConsole
     }
 
     [Command]
+    [Command(CommandName = "rm")]
     public static void Destroy()
     {
         if (_context == _context.GetTree().Root)

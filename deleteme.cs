@@ -41,4 +41,16 @@ public partial class deleteme : Node
 	{
 		GameConsole.Print(test.Name);
 	}
+	
+	[Command]
+	private static void Move2D(Vector2 vector)
+	{
+		GameConsole.Print(vector.ToString());
+	}
+
+	[Command]
+	private static void Move3D(Vector3 vector)
+	{
+		GameConsole.Print(vector.ToString());
+	}
 }
