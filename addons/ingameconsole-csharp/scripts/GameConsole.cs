@@ -17,7 +17,7 @@ public static class GameConsole
         { typeof(Node), (nodePath) => _context.GetNodeOrNull(nodePath) }
     };
 
-    private const string CommandPattern = "\"(?<val>[^\"]+)\"|'(?<val>[^']+)'|(?<val>[^\\s]+)";
+    private const string CommandPattern = "(?<val>(\\([^\\)]+\\)))|\"(?<val>[^\"]+)\"|'(?<val>[^']+)'|(?<val>[^\\s]+)";
     
     public static GameConsoleUI ConsoleUi
     {
