@@ -59,24 +59,18 @@ public static class GameConsole
         }
     }
 
-    public static bool SetContext(Node obj)
+    [Command]
+    [Command(CommandName = "cd")]
+    public static bool SetContext(Node node)
     {
-        if (_context == obj || obj is null)
+        if (_context == node || node is null)
         {
             PrintError("Node not found");
             return false;
         }
-        _context = obj;
+        _context = node;
         Print($"Context switched to {_context.GetPath()}");
         return true;
-    }
-
-    [Command]
-    [Command(CommandName = "cd")]
-    public static bool SetContext(string nodePath)
-    {
-        var obj = _context.GetNodeOrNull(nodePath);
-        return SetContext(obj);
     }
 
     [Command]
