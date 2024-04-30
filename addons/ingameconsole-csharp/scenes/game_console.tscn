@@ -1,6 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://7appr8x3lsnk"]
+[gd_scene load_steps=3 format=3 uid="uid://7appr8x3lsnk"]
 
 [ext_resource type="Script" path="res://addons/ingameconsole-csharp/scripts/GameConsoleUI.cs" id="1_g17pw"]
+
+[sub_resource type="CodeHighlighter" id="CodeHighlighter_jufr8"]
+number_color = Color(0.59955, 7.5084e-06, 0.408161, 1)
+symbol_color = Color(0, 1, 0, 1)
+function_color = Color(0.933333, 0, 1, 1)
+member_variable_color = Color(0, 0, 1, 1)
+keyword_colors = {
+"help": Color(0, 1, 0, 1)
+}
 
 [node name="GameConsole" type="Control" node_paths=PackedStringArray("_outputLabel", "_inputField")]
 layout_mode = 3
@@ -40,5 +49,8 @@ layout_mode = 2
 bbcode_enabled = true
 scroll_following = true
 
-[node name="InputField" type="LineEdit" parent="Panel/VBoxContainer"]
+[node name="InputField" type="TextEdit" parent="Panel/VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.1
+syntax_highlighter = SubResource("CodeHighlighter_jufr8")

@@ -6,19 +6,24 @@ public partial class GameConsoleUI : Control
 {
 
     [Export] private RichTextLabel _outputLabel;
-    [Export] private LineEdit _inputField;
+    [Export] private TextEdit _inputField;
+
+    private CodeHighlighter _highlighter;
     
     
     public override void _EnterTree()
     {
         GameConsole.ConsoleUi = this;
         GameConsole.GetCommands();
-
-        _inputField.TextSubmitted += _ => SubmitInput();
+        
+        _highlighter = (CodeHighlighter)_inputField.SyntaxHighlighter;
+        
+        _highlighter.AddColorRegion("(", ")", Colors.Red);
     }
 
     public override void _Process(double delta)
     {
+        if (Input.IsActionJustPressed("accept") && _inputField.HasFocus()) SubmitInput();
         if (Input.IsActionJustPressed("console"))
         {
             Visible = !Visible;

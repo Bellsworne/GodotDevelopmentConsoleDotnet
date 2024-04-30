@@ -12,6 +12,7 @@ public static class GameConsole
     private static GameConsoleUI _consoleUI;
     private static Dictionary<string, (CommandAttribute attribute, MethodBase method)> _commands = new(StringComparer.OrdinalIgnoreCase);
     private static Node _context;
+    
     private static Dictionary<Type, Func<string, object>> _parsers = new()
     {
         { typeof(Node), (nodePath) => _context.GetNodeOrNull(nodePath) },
@@ -74,63 +75,6 @@ public static class GameConsole
                 }
             }
         }
-    }
-
-    [Command]
-    [Command(CommandName = "cd")]
-    public static bool SetContext(Node node)
-    {
-        if (_context == node || node is null)
-        {
-            PrintError("Node not found");
-            return false;
-        }
-        _context = node;
-        Print($"Context switched to {_context.GetPath()}");
-        return true;
-    }
-
-    [Command]
-    [Command(CommandName = "pwd")]
-    public static void CurrentContext()
-    {
-        Print($"{_context.GetPath()} : [color=green]{_context.GetType().FullName}[/color]");
-    }
-
-    [Command]
-    [Command(CommandName = "ls")]
-    [Command(CommandName = "dir")]
-    public static void ListChildren()
-    {
-        Print(string.Join("\n", _context.GetChildren().Select(child => $"{child.Name} : [color=yellow]{child.GetType().FullName}[/color]")));
-    }
-
-    [Command]
-    [Command(CommandName = "rm")]
-    public static void Destroy()
-    {
-        if (_context == _context.GetTree().Root)
-        {
-            PrintError("Cannot destroy /root");
-            return;
-        }
-        var deleteContext = _context;
-        SetContext(_context.GetParent());
-        deleteContext.QueueFree();
-        Print("Node destroyed");
-    }
-
-    [Command(Usage = "[-a]", Description = "-a = include methods requiring a context you haven't got selected")]
-    public static void Help(params string[] args)
-    {
-        var includeAll = args.Contains("-a", StringComparer.CurrentCultureIgnoreCase);
-        Print(string.Join("\n", _commands.Where(command => includeAll || command.Value.method.IsStatic || command.Value.method.DeclaringType!.IsInstanceOfType(_context)).Select(command => $"{(command.Value.method.IsStatic ? "" : $"{(command.Value.method.DeclaringType!.IsInstanceOfType(_context) ? "[color=green]" : "[color=yellow]")}(from '{command.Value.method.DeclaringType!.FullName}' context)[/color] ")}{GetCommandUsage(command.Value.attribute.CommandName, command.Value.method)}{(string.IsNullOrWhiteSpace(command.Value.attribute.Description) ? "" : $"\t[color=slate_gray]#{command.Value.attribute.Description}[/color]")}")));
-    }
-
-    [Command(Description = "Clear the screen")]
-    public static void Clear()
-    {
-        _consoleUI.Clear();
     }
     
     public static (string commandName, MethodBase method, List<object> args)? GetCommandFromString(string input)
@@ -301,20 +245,85 @@ public static class GameConsole
         return false;
     }
 
+    #region Built-in Commands
+    
+    [Command]
     public static void Print(string input)
     {
         _consoleUI.Print(input);
     }
     
+    [Command]
     public static void PrintError(string input)
     {
         _consoleUI.PrintError(input);
     }
     
+    [Command]
     public static void PrintWarning(string input)
     {
         _consoleUI.PrintWarning(input);
     }
+
+    [Command]
+    [Command(CommandName = "cd")]
+    public static bool SetContext(Node node)
+    {
+        if (_context == node || node is null)
+        {
+            PrintError("Node not found");
+            return false;
+        }
+        _context = node;
+        Print($"Context switched to {_context.GetPath()}");
+        return true;
+    }
+
+    [Command]
+    [Command(CommandName = "pwd")]
+    public static void CurrentContext()
+    {
+        Print($"{_context.GetPath()} : [color=green]{_context.GetType().FullName}[/color]");
+    }
+
+    [Command]
+    [Command(CommandName = "ls")]
+    [Command(CommandName = "dir")]
+    public static void ListChildren()
+    {
+        Print(string.Join("\n", _context.GetChildren().Select(child => $"{child.Name} : [color=yellow]{child.GetType().FullName}[/color]")));
+    }
+
+    [Command]
+    [Command(CommandName = "rm")]
+    public static void Destroy()
+    {
+        if (_context == _context.GetTree().Root)
+        {
+            PrintError("Cannot destroy /root");
+            return;
+        }
+        var deleteContext = _context;
+        SetContext(_context.GetParent());
+        deleteContext.QueueFree();
+        Print("Node destroyed");
+    }
+
+    [Command(Usage = "[-a]", Description = "-a = include methods requiring a context you haven't got selected")]
+    public static void Help(params string[] args)
+    {
+        var includeAll = args.Contains("-a", StringComparer.CurrentCultureIgnoreCase);
+        Print(string.Join("\n", _commands.Where(command => includeAll || command.Value.method.IsStatic || command.Value.method.DeclaringType!.IsInstanceOfType(_context)).Select(command => $"{(command.Value.method.IsStatic ? "" : $"{(command.Value.method.DeclaringType!.IsInstanceOfType(_context) ? "[color=green]" : "[color=yellow]")}(from '{command.Value.method.DeclaringType!.FullName}' context)[/color] ")}{GetCommandUsage(command.Value.attribute.CommandName, command.Value.method)}{(string.IsNullOrWhiteSpace(command.Value.attribute.Description) ? "" : $"\t[color=slate_gray]#{command.Value.attribute.Description}[/color]")}")));
+    }
+
+    [Command(Description = "Clear the screen")]
+    public static void Clear()
+    {
+        _consoleUI.Clear();
+    }
+    
+    #endregion
+    
 }
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
