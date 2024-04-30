@@ -71,7 +71,7 @@ public static class GameConsole
                         Usage = attribute.Usage,
                     };
                     _commands.Add(commandName, (newAttribute, method));
-                    GD.Print($"{(method.IsStatic ? "Static" : "Instanced")} Command: `{commandName}` added.");
+                    //GD.Print($"{(method.IsStatic ? "Static" : "Instanced")} Command: `{commandName}` added.");
                 }
             }
         }
