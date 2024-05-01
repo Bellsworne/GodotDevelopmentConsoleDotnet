@@ -26,16 +26,42 @@ public partial class GameConsoleUI : Control
     public override void _EnterTree()
     {
         GameConsole.ConsoleUi = this;
-        Print(_motd);
         GameConsole.GetCommands();
-        _tree.SetColumnExpand(0, false);
+        GameConsole.RunCommand("tree");
+        
+        Print(_motd);
+        
         var item = _tree.CreateItem();
         item.SetText(0, "tree_root");
         SetupTree(GetTree().Root, _tree.GetRoot());
-        _tree.ItemActivated += () =>
-        {
-            GameConsole.RunCommand($"cd {GetTreeItemPath(_tree.GetSelected())}");
-        };
+        _tree.ItemActivated += TreeItemActivated;
+        
+        GetTree().NodeRemoved += SceneTreeNodeRemoved;
+        GetTree().NodeAdded += SceneTreeNodeAdded;
+        GetTree().NodeRenamed += SceneTreeNodeRenamed;
+    }
+
+    private void TreeItemActivated()
+    {
+        GameConsole.RunCommand($"cd {GetTreeItemPath(_tree.GetSelected())}");
+    }
+
+    private void SceneTreeNodeRemoved(Node node)
+    {
+        // TODO: Update tree
+        GameConsole.PrintWarning($"{node.GetPath()} was removed");
+    }
+    
+    private void SceneTreeNodeAdded(Node node)
+    {
+        // TODO: Update tree
+        GameConsole.PrintWarning($"{node.GetPath()} was added");
+    }
+    
+    private void SceneTreeNodeRenamed(Node node)
+    {
+        // TODO: Update tree
+        GameConsole.PrintWarning($"{node.GetPath()} was renamed to ???");
     }
 
     private string GetTreeItemPath(TreeItem item)
@@ -63,7 +89,10 @@ public partial class GameConsoleUI : Control
         }
     }
 
-
+    private void TreeItemRemoved(Node node)
+    {
+        
+    }
     
     public override void _Input(InputEvent @event)
     {
@@ -161,7 +190,7 @@ public partial class GameConsoleUI : Control
             _treeCanTween = false;
             var tween = GetTree().CreateTween();
             tween.TweenProperty(_treePanel, "custom_minimum_size", new Vector2(0, 0), 0.1f);
-            tween.SetEase(Tween.EaseType.In);
+            tween.SetEase(Tween.EaseType.Out);
             tween.SetTrans(Tween.TransitionType.Elastic);
             tween.Play();
             tween.Finished += () =>
