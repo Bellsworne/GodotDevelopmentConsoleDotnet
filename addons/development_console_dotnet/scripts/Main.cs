@@ -37,7 +37,8 @@ public partial class Main : EditorPlugin
         
         // This forces the editor to restart,
         // which is needed for some stupid reason to actually update the input settings
-        EditorInterface.Singleton.RestartEditor();
+        // -- Nevermind this makes the plugin not actually enable. Now I am sad
+        //EditorInterface.Singleton.RestartEditor();
     }
     
     public override void _DisablePlugin()
