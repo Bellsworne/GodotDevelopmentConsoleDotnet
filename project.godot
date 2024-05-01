@@ -10,14 +10,14 @@ config_version=5
 
 [application]
 
-config/name="InGameConsole-csharp"
-run/main_scene="res://control.tscn"
+config/name="GodotDevelopmentConsoleDotnet"
+config/version="1.0.0s"
+run/main_scene="res://test.tscn"
 config/features=PackedStringArray("4.2", "C#", "GL Compatibility")
-config/icon="res://icon.svg"
 
 [autoload]
 
-GameConsole="*res://addons/ingameconsole-csharp/scenes/game_console.tscn"
+GameConsole="*res://addons/development_console_dotnet/scenes/game_console.tscn"
 
 [dotnet]
 
@@ -25,7 +25,7 @@ project/assembly_name="InGameConsole-csharp"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/ingameconsole-csharp/plugin.cfg")
+enabled=PackedStringArray("res://addons/development_console_dotnet/plugin.cfg")
 
 [input]
 

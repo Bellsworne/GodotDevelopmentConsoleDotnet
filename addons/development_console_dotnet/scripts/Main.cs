@@ -5,7 +5,7 @@ namespace InGameConsole;
 [Tool]
 public partial class Main : EditorPlugin
 {
-    private const string GameConsoleUiPath = "res://addons/ingameconsole-csharp/scenes/game_console.tscn";
+    private const string GameConsoleUiPath = "res://addons/development_console_dotnet/scenes/game_console.tscn";
     public override void _EnablePlugin()
     {
         AddAutoloadSingleton("GameConsole", GameConsoleUiPath);

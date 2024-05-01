@@ -11,7 +11,6 @@ public partial class GameConsoleUI : Control
     private CodeHighlighter _highlighter;
     private AnimationPlayer _animation;
     
-    
     public override void _EnterTree()
     {
         GameConsole.ConsoleUi = this;
