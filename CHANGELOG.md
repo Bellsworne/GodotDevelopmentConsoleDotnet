@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Upon enabling the plugin, input mappings will be auto generated and the editor will forcibly restart.
 
 ### Changed
 
