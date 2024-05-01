@@ -21,17 +21,22 @@ public partial class GameConsoleUI : Control
         
         GameConsole.GetCommands();
     }
-
-    public override void _Process(double delta)
+    
+    public override void _Input(InputEvent @event)
     {
-        if (Input.IsActionJustPressed("accept") && _inputField.HasFocus()) SubmitInput();
-        
-        if (Input.IsActionJustPressed("console"))
+        if (@event.IsActionPressed("accept") && _inputField.HasFocus())
         {
+            GetViewport().SetInputAsHandled();
+            SubmitInput();
+        }
+        
+        if (@event.IsActionPressed("console"))
+        {
+            GetViewport().SetInputAsHandled();
+            
             if (Visible)
             {
                 _animation.Play("main");
-                _inputField.Clear();
             }
             else
             {
