@@ -276,6 +276,7 @@ public static class GameConsole
         }
         _context = node;
         Print($"Context switched to {_context.GetPath()}");
+        _consoleUI.SetContext(_context.GetPath().ToString());
         return true;
     }
 
