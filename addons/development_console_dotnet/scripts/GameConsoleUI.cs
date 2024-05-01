@@ -1,25 +1,69 @@
+using System;
 using System.Net.Mime;
 using Godot;
+using Godot.Collections;
 
 namespace InGameConsole;
 
 public partial class GameConsoleUI : Control
 {
 
+    [ExportCategory("Console")]
+    [Export] private Panel _consolePanel;
     [Export] private RichTextLabel _outputLabel;
     [Export] private TextEdit _inputField;
     [Export] private Label _contextLabel;
+
+    [ExportCategory("Tree view")] 
+    [Export] private Panel _treePanel;
+    [Export] private Tree _tree;
+    
     [Export] private string _motd = "Type `help` for a list of commands.";
 
-    private bool _canTween = true;
+    private bool _consoleCanTween = true;
+    private bool _treeCanTween = true;
     
     public override void _EnterTree()
     {
         GameConsole.ConsoleUi = this;
         Print(_motd);
-        
         GameConsole.GetCommands();
+        _tree.SetColumnExpand(0, false);
+        var item = _tree.CreateItem();
+        item.SetText(0, "tree_root");
+        SetupTree(GetTree().Root, _tree.GetRoot());
+        _tree.ItemActivated += () =>
+        {
+            GameConsole.RunCommand($"cd {GetTreeItemPath(_tree.GetSelected())}");
+        };
     }
+
+    private string GetTreeItemPath(TreeItem item)
+    {
+        if (item is null) return "";
+
+        if (item.GetParent() == null || item.GetParent().GetText(0) is "tree_root")
+        {
+            return $"/{item.GetText(0)}";
+        }
+
+        string parent = GetTreeItemPath(item.GetParent());
+
+        return $"{parent}/{item.GetText(0)}";
+    }
+
+    private void SetupTree(Node current, TreeItem root)
+    {
+        TreeItem newItem = root.CreateChild();
+        newItem.SetText(0, current.Name);
+
+        foreach (var child in current.GetChildren())
+        {
+            SetupTree(child, newItem);
+        }
+    }
+
+
     
     public override void _Input(InputEvent @event)
     {
@@ -45,17 +89,17 @@ public partial class GameConsoleUI : Control
 
     private void ShowConsole()
     {
-        if (_canTween)
+        if (_consoleCanTween)
         {
-            _canTween = false;
+            _consoleCanTween = false;
             Visible = true;
             var tween = GetTree().CreateTween();
-            tween.TweenProperty(GetNode<Panel>("Panel"), "modulate:a", 1, 0.1f);
+            tween.TweenProperty(this, "modulate:a", 1, 0.1f);
             tween.SetEase(Tween.EaseType.InOut);
             tween.Play();
             tween.Finished += () =>
             {
-                _canTween = true;
+                _consoleCanTween = true;
                 _inputField.GrabFocus();
             };
         }
@@ -63,17 +107,17 @@ public partial class GameConsoleUI : Control
 
     private void HideConsole()
     {
-        if (_canTween)
+        if (_consoleCanTween)
         {
-            _canTween = false;
+            _consoleCanTween = false;
             var tween = GetTree().CreateTween();
-            tween.TweenProperty(GetNode<Panel>("Panel"), "modulate:a", 0, 0.1f);
+            tween.TweenProperty(this, "modulate:a", 0, 0.1f);
             tween.SetEase(Tween.EaseType.InOut);
             tween.Play();
             tween.Finished += () =>
             {
                 Visible = false;
-                _canTween = true;
+                _consoleCanTween = true;
             };
         }
     }
@@ -108,5 +152,38 @@ public partial class GameConsoleUI : Control
     public void SetContext(string path)
     {
         _contextLabel.Text = $"{path} $:";
+    }
+
+    public void ToggleTree()
+    {
+        if (_treePanel.Visible && _treeCanTween)
+        {
+            _treeCanTween = false;
+            var tween = GetTree().CreateTween();
+            tween.TweenProperty(_treePanel, "custom_minimum_size", new Vector2(0, 0), 0.1f);
+            tween.SetEase(Tween.EaseType.In);
+            tween.SetTrans(Tween.TransitionType.Elastic);
+            tween.Play();
+            tween.Finished += () =>
+            {
+                _treePanel.Visible = false;
+                _treeCanTween = true;
+            };
+        }
+        
+        if (!_treePanel.Visible && _treeCanTween)
+        {
+            _treeCanTween = false;
+            _treePanel.Visible = true;
+            var tween = GetTree().CreateTween();
+            tween.TweenProperty(_treePanel, "custom_minimum_size", new Vector2(250, 0), 0.1f);
+            tween.SetEase(Tween.EaseType.Out);
+            tween.SetTrans(Tween.TransitionType.Elastic);
+            tween.Play();
+            tween.Finished += () =>
+            {
+                _treeCanTween = true;
+            };
+        }
     }
 }

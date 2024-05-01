@@ -323,6 +323,13 @@ public static class GameConsole
         _consoleUI.Clear();
     }
     
+    [Command]
+    [Command(CommandName = "tree")]
+    private static void ToggleTree()
+    {
+        _consoleUI.ToggleTree();
+    }
+    
     #endregion
     
 }

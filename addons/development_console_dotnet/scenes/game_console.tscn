@@ -1,25 +1,21 @@
 [gd_scene load_steps=8 format=3 uid="uid://7appr8x3lsnk"]
 
 [ext_resource type="Script" path="res://addons/development_console_dotnet/scripts/GameConsoleUI.cs" id="1_g17pw"]
+[ext_resource type="Theme" uid="uid://bcvppqv548l0o" path="res://addons/development_console_dotnet/themes/game_console_main_theme.tres" id="2_18h05"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ke3uv"]
-bg_color = Color(0, 0, 0, 0.235294)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fe7gw"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_63y3s"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o17lt"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b0syy"]
-content_margin_left = 5.0
-bg_color = Color(0.6, 0.6, 0.6, 0)
-
-[sub_resource type="Theme" id="Theme_t56k3"]
-Panel/styles/panel = SubResource("StyleBoxFlat_ke3uv")
-TextEdit/styles/focus = SubResource("StyleBoxFlat_63y3s")
-TextEdit/styles/normal = SubResource("StyleBoxFlat_b0syy")
+[sub_resource type="Theme" id="Theme_4msy2"]
+Tree/styles/focus = SubResource("StyleBoxFlat_fe7gw")
+Tree/styles/panel = SubResource("StyleBoxFlat_o17lt")
 
 [sub_resource type="Theme" id="Theme_xx750"]
 
@@ -27,7 +23,7 @@ TextEdit/styles/normal = SubResource("StyleBoxFlat_b0syy")
 content_margin_left = 15.0
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
-[node name="GameConsole" type="Control" node_paths=PackedStringArray("_outputLabel", "_inputField", "_contextLabel")]
+[node name="GameConsole" type="Control" node_paths=PackedStringArray("_consolePanel", "_outputLabel", "_inputField", "_contextLabel", "_treePanel", "_tree")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -35,53 +31,80 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_g17pw")
-_outputLabel = NodePath("Panel/VBoxContainer/MarginContainer/ConsoleLabel")
-_inputField = NodePath("Panel/VBoxContainer/InputHBox/InputField")
-_contextLabel = NodePath("Panel/VBoxContainer/InputHBox/ContextLabel")
+_consolePanel = NodePath("MarginContainer/HBoxContainer/ConsolePanel")
+_outputLabel = NodePath("MarginContainer/HBoxContainer/ConsolePanel/VBoxContainer/MarginContainer/ConsoleLabel")
+_inputField = NodePath("MarginContainer/HBoxContainer/ConsolePanel/VBoxContainer/InputHBox/InputField")
+_contextLabel = NodePath("MarginContainer/HBoxContainer/ConsolePanel/VBoxContainer/InputHBox/ContextLabel")
+_treePanel = NodePath("MarginContainer/HBoxContainer/SceneTreePanel")
+_tree = NodePath("MarginContainer/HBoxContainer/SceneTreePanel/Tree")
 
-[node name="Panel" type="Panel" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 2
-theme = SubResource("Theme_t56k3")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+[node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 
-[node name="MarginContainer" type="MarginContainer" parent="Panel/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="SceneTreePanel" type="Panel" parent="MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme = ExtResource("2_18h05")
+
+[node name="Tree" type="Tree" parent="MarginContainer/HBoxContainer/SceneTreePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_4msy2")
+hide_root = true
+
+[node name="ConsolePanel" type="Panel" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_18h05")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/ConsolePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HBoxContainer/ConsolePanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 
-[node name="ConsoleLabel" type="RichTextLabel" parent="Panel/VBoxContainer/MarginContainer"]
+[node name="ConsoleLabel" type="RichTextLabel" parent="MarginContainer/HBoxContainer/ConsolePanel/VBoxContainer/MarginContainer"]
 layout_mode = 2
 bbcode_enabled = true
 scroll_following = true
 
-[node name="InputHBox" type="HBoxContainer" parent="Panel/VBoxContainer"]
+[node name="InputHBox" type="HBoxContainer" parent="MarginContainer/HBoxContainer/ConsolePanel/VBoxContainer"]
 layout_mode = 2
 theme = SubResource("Theme_xx750")
 
-[node name="ContextLabel" type="Label" parent="Panel/VBoxContainer/InputHBox"]
+[node name="ContextLabel" type="Label" parent="MarginContainer/HBoxContainer/ConsolePanel/VBoxContainer/InputHBox"]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_hqkos")
 text = "/root $:"
 
-[node name="InputField" type="TextEdit" parent="Panel/VBoxContainer/InputHBox"]
+[node name="InputField" type="TextEdit" parent="MarginContainer/HBoxContainer/ConsolePanel/VBoxContainer/InputHBox"]
+clip_contents = true
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 size_flags_horizontal = 3
