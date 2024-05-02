@@ -26,8 +26,11 @@ public partial class GameConsoleUI : Control
     
     public override void _EnterTree()
     {
+        AddInputMappings();
+        
         GameConsole.ConsoleUi = this;
         GameConsole.GetCommands();
+        
         GameConsole.RunCommand("tree");
         
         Print(_motd);
@@ -48,6 +51,33 @@ public partial class GameConsoleUI : Control
             }
         };
     }
+    
+    public override void _Input(InputEvent @event)
+    {
+        if (@event.IsActionPressed(GameConsole.DevConsoleAcceptAction) && _inputField.HasFocus())
+        {
+            GetViewport().SetInputAsHandled();
+            SubmitInput();
+        }
+        
+        if (@event.IsActionPressed(GameConsole.DevConsoleToggleAction))
+        {
+            GetViewport().SetInputAsHandled();
+            if (Visible)
+            {
+                HideConsole();
+            }
+            else
+            {
+                ShowConsole();
+            }
+        }
+    }
+    
+    public void Print(string input)
+    {
+        _outputLabel.AppendText($"{input}\n");
+    }
 
     public override void _Ready()
     {
@@ -57,6 +87,59 @@ public partial class GameConsoleUI : Control
         }
     }
 
+    public void PrintError(string input)
+    {
+        _outputLabel.AppendText($"[color=red]{input}[/color]\n");
+    }
+
+    public void PrintWarning(string input)
+    {
+        _outputLabel.AppendText($"[color=yellow]{input}[/color]\n");
+    }
+
+    public void Clear()
+    {
+        _outputLabel.Clear();
+    }
+    
+    public void SetContextLabel(string path)
+    {
+        _contextLabel.Text = $"{path} $:";
+    }
+
+    public void ToggleTree()
+    {
+        if (_treePanel.Visible && _treeCanTween)
+        {
+            _treeCanTween = false;
+            var tween = GetTree().CreateTween();
+            tween.TweenProperty(_treePanel, "custom_minimum_size", new Vector2(0, 0), 0.1f);
+            tween.SetEase(Tween.EaseType.Out);
+            tween.SetTrans(Tween.TransitionType.Elastic);
+            tween.Play();
+            tween.Finished += () =>
+            {
+                _treePanel.Visible = false;
+                _treeCanTween = true;
+            };
+        }
+        
+        if (!_treePanel.Visible && _treeCanTween)
+        {
+            _treeCanTween = false;
+            _treePanel.Visible = true;
+            var tween = GetTree().CreateTween();
+            tween.TweenProperty(_treePanel, "custom_minimum_size", new Vector2(250, 0), 0.1f);
+            tween.SetEase(Tween.EaseType.Out);
+            tween.SetTrans(Tween.TransitionType.Elastic);
+            tween.Play();
+            tween.Finished += () =>
+            {
+                _treeCanTween = true;
+            };
+        }
+    }
+    
     private void TreeItemActivated()
     {
         GameConsole.RunCommand($"cd {GetTreeItemPath(_tree.GetSelected())}");
@@ -153,28 +236,6 @@ public partial class GameConsoleUI : Control
 
         SetupTreeChildren(current, newItem);
     }
-    
-    public override void _Input(InputEvent @event)
-    {
-        if (@event.IsActionPressed("accept") && _inputField.HasFocus())
-        {
-            GetViewport().SetInputAsHandled();
-            SubmitInput();
-        }
-        
-        if (@event.IsActionPressed("console"))
-        {
-            GetViewport().SetInputAsHandled();
-            if (Visible)
-            {
-                HideConsole();
-            }
-            else
-            {
-                ShowConsole();
-            }
-        }
-    }
 
     private void ShowConsole()
     {
@@ -217,61 +278,20 @@ public partial class GameConsoleUI : Control
         _inputField.Clear();
     }
 
-    public void Print(string input)
+    private void AddInputMappings()
     {
-        _outputLabel.AppendText($"{input}\n");
-    }
-
-    public void PrintError(string input)
-    {
-        _outputLabel.AppendText($"[color=red]{input}[/color]\n");
-    }
-
-    public void PrintWarning(string input)
-    {
-        _outputLabel.AppendText($"[color=yellow]{input}[/color]\n");
-    }
-
-    public void Clear()
-    {
-        _outputLabel.Clear();
-    }
-    
-    public void SetContextLabel(string path)
-    {
-        _contextLabel.Text = $"{path} $:";
-    }
-
-    public void ToggleTree()
-    {
-        if (_treePanel.Visible && _treeCanTween)
+        if (!InputMap.HasAction(GameConsole.DevConsoleAcceptAction))
         {
-            _treeCanTween = false;
-            var tween = GetTree().CreateTween();
-            tween.TweenProperty(_treePanel, "custom_minimum_size", new Vector2(0, 0), 0.1f);
-            tween.SetEase(Tween.EaseType.Out);
-            tween.SetTrans(Tween.TransitionType.Elastic);
-            tween.Play();
-            tween.Finished += () =>
-            {
-                _treePanel.Visible = false;
-                _treeCanTween = true;
-            };
+            InputMap.AddAction(GameConsole.DevConsoleAcceptAction);
+            InputMap.ActionAddEvent(GameConsole.DevConsoleAcceptAction, new InputEventKey(){Keycode = Key.Enter});
         }
-        
-        if (!_treePanel.Visible && _treeCanTween)
+
+
+        if (!InputMap.HasAction(GameConsole.DevConsoleToggleAction))
         {
-            _treeCanTween = false;
-            _treePanel.Visible = true;
-            var tween = GetTree().CreateTween();
-            tween.TweenProperty(_treePanel, "custom_minimum_size", new Vector2(250, 0), 0.1f);
-            tween.SetEase(Tween.EaseType.Out);
-            tween.SetTrans(Tween.TransitionType.Elastic);
-            tween.Play();
-            tween.Finished += () =>
-            {
-                _treeCanTween = true;
-            };
+            InputMap.AddAction(GameConsole.DevConsoleToggleAction);
+            InputMap.ActionAddEvent(GameConsole.DevConsoleToggleAction, new InputEventKey(){Keycode = Key.Quoteleft});
         }
     }
+
 }

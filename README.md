@@ -1,11 +1,10 @@
-# C# Dev console for Godot 4.2.2
+# C# Dev console for Godot 4.2.2 - Version 1.1.0-alpha
 
 ## Installation
 ___
 > - Download the desired release from the Releases page on Github
 > - Open your C# Godot 4.2 project and click on AssetLib > Plugins > Import...
 > - Select the Release.zip file you downloaded, and click install
-> - Add two input actions, `console` and `accept`
 > - Enable the plugin
 > - Profit
 
@@ -21,7 +20,7 @@ This console is built around setting the context, aka the instance of a class, t
 You can set context in three ways. 
 1. Using the `SetContext` or `cd` command in the console, passing the name of a Node in the scene (you can view nodes by typing `ShowChildren` or `ls`)
 2. In a script, you can use `GameConsole.SetContext(this)` passing either `this` to get the instance you are in, or any other instanced class.
-3. ~~Using the `ShowTree` or `tree` command to get a UI of the scene tree to select a node.~~ // Not in the a1.0 release.
+3. Using the `ToggleTree` or `tree` command to get a UI of the scene tree to select a node.
 
 ## Documentation
 ___

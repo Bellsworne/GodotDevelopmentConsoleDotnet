@@ -9,6 +9,9 @@ namespace InGameConsole;
 
 public static class GameConsole
 {
+    public const string DevConsoleToggleAction = "devconsole_toggle";
+    public const string DevConsoleAcceptAction = "devconsole_accept";
+    
     private static GameConsoleUI _consoleUI;
     private static Dictionary<string, (CommandAttribute attribute, MethodBase method)> _commands = new(StringComparer.OrdinalIgnoreCase);
     private static Node _context;

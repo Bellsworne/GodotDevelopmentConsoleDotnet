@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a `Rename` or `mv` command to rename nodes
 ### Changed
 - New UI
+- Fixed input mapping issues
 ### Removed
 
 ## [1.0.0-alpha]
