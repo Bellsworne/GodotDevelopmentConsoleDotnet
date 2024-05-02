@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net.Mime;
 using Godot;
 using Godot.Collections;
@@ -50,6 +51,20 @@ public partial class GameConsoleUI : Control
     {
         // TODO: Update tree
         GameConsole.PrintWarning($"{node.GetPath()} was removed");
+        
+        var nodePath = node.GetPath();
+
+        var treeContext = _tree.GetRoot();
+        for (var nodePathIndex = 0; nodePathIndex < nodePath.GetNameCount(); nodePathIndex++)
+        {
+            treeContext = treeContext.GetChildren().SingleOrDefault(child => child.GetText(0) == nodePath.GetName(nodePathIndex));
+            if (treeContext == null)
+            {
+                return;
+            }
+        }
+        
+        treeContext.GetParent().RemoveChild(treeContext);
     }
     
     private void SceneTreeNodeAdded(Node node)
