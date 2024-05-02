@@ -113,9 +113,9 @@ public partial class GameConsoleUI : Control
         {
             _treeCanTween = false;
             var tween = GetTree().CreateTween();
-            tween.TweenProperty(_treePanel, "custom_minimum_size", new Vector2(0, 0), 0.1f);
             tween.SetEase(Tween.EaseType.Out);
             tween.SetTrans(Tween.TransitionType.Elastic);
+            tween.TweenProperty(_treePanel, "custom_minimum_size", new Vector2(0, 0), .5f);
             tween.Play();
             tween.Finished += () =>
             {
@@ -129,9 +129,9 @@ public partial class GameConsoleUI : Control
             _treeCanTween = false;
             _treePanel.Visible = true;
             var tween = GetTree().CreateTween();
-            tween.TweenProperty(_treePanel, "custom_minimum_size", new Vector2(250, 0), 0.1f);
             tween.SetEase(Tween.EaseType.Out);
             tween.SetTrans(Tween.TransitionType.Elastic);
+            tween.TweenProperty(_treePanel, "custom_minimum_size", new Vector2(250, 0), .5f);
             tween.Play();
             tween.Finished += () =>
             {
