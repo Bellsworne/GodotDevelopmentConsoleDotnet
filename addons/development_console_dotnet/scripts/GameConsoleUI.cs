@@ -50,7 +50,7 @@ public partial class GameConsoleUI : Control
     private void SceneTreeNodeRemoved(Node node)
     {
         // TODO: Update tree
-        GameConsole.PrintWarning($"{node.GetPath()} was removed");
+        // GameConsole.PrintWarning($"{node.GetPath()} was removed");
         
         var nodePath = node.GetPath();
 
@@ -70,7 +70,22 @@ public partial class GameConsoleUI : Control
     private void SceneTreeNodeAdded(Node node)
     {
         // TODO: Update tree
-        GameConsole.PrintWarning($"{node.GetPath()} was added");
+        // GameConsole.PrintWarning($"{node.GetPath()} was added");
+        
+        var nodePath = node.GetPath();
+
+        var treeContext = _tree.GetRoot();
+        for (var nodePathIndex = 0; nodePathIndex < nodePath.GetNameCount(); nodePathIndex++)
+        {
+            var newTreeContext = treeContext.GetChildren().SingleOrDefault(child => child.GetText(0) == nodePath.GetName(nodePathIndex));
+            if (newTreeContext == null)
+            {
+                newTreeContext = treeContext.CreateChild();
+                newTreeContext.SetText(0, nodePath.GetName(nodePathIndex));
+            }
+
+            treeContext = newTreeContext;
+        }
     }
     
     private void SceneTreeNodeRenamed(Node node)
@@ -98,7 +113,7 @@ public partial class GameConsoleUI : Control
         TreeItem newItem = root.CreateChild();
         newItem.SetText(0, current.Name);
 
-        foreach (var child in current.GetChildren())
+        foreach (var child in current.GetChildren(true))
         {
             SetupTree(child, newItem);
         }

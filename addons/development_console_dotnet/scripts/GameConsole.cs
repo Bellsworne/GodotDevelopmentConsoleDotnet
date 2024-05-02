@@ -292,7 +292,7 @@ public static class GameConsole
     [Command(CommandName = "dir")]
     public static void ListChildren()
     {
-        Print(string.Join("\n", _context.GetChildren().Select(child => $"{child.Name} : [color=yellow]{child.GetType().FullName}[/color]")));
+        Print(string.Join("\n", _context.GetChildren(true).Select(child => $"{child.Name} : [color=yellow]{child.GetType().FullName}[/color]")));
     }
 
     [Command]
