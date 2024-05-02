@@ -1,0 +1,20 @@
+[gd_resource type="Theme" load_steps=4 format=3 uid="uid://bcvppqv548l0o"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ke3uv"]
+bg_color = Color(0, 0, 0, 0.235294)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_63y3s"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b0syy"]
+content_margin_left = 5.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[resource]
+Panel/styles/panel = SubResource("StyleBoxFlat_ke3uv")
+TextEdit/styles/focus = SubResource("StyleBoxFlat_63y3s")
+TextEdit/styles/normal = SubResource("StyleBoxFlat_b0syy")

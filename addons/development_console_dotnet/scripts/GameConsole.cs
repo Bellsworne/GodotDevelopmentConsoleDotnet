@@ -9,6 +9,9 @@ namespace InGameConsole;
 
 public static class GameConsole
 {
+    public const string DevConsoleToggleAction = "devconsole_toggle";
+    public const string DevConsoleAcceptAction = "devconsole_accept";
+    
     private static GameConsoleUI _consoleUI;
     private static Dictionary<string, (CommandAttribute attribute, MethodBase method)> _commands = new(StringComparer.OrdinalIgnoreCase);
     private static Node _context;
@@ -276,6 +279,7 @@ public static class GameConsole
         }
         _context = node;
         Print($"Context switched to {_context.GetPath()}");
+        _consoleUI.SetContextLabel(_context.GetPath().ToString());
         return true;
     }
 
@@ -291,7 +295,7 @@ public static class GameConsole
     [Command(CommandName = "dir")]
     public static void ListChildren()
     {
-        Print(string.Join("\n", _context.GetChildren().Select(child => $"{child.Name} : [color=yellow]{child.GetType().FullName}[/color]")));
+        Print(string.Join("\n", _context.GetChildren(true).Select(child => $"{child.Name} : [color=yellow]{child.GetType().FullName}[/color]")));
     }
 
     [Command]
@@ -320,6 +324,19 @@ public static class GameConsole
     public static void Clear()
     {
         _consoleUI.Clear();
+    }
+    
+    [Command]
+    [Command(CommandName = "tree")]
+    private static void ToggleTree()
+    {
+        _consoleUI.ToggleTree();
+    }
+
+    [Command(CommandName = "mv")]
+    private static void RenameNode(string newName)
+    {
+        _context.Name = newName;
     }
     
     #endregion
