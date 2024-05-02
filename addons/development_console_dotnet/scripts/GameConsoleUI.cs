@@ -92,8 +92,33 @@ public partial class GameConsoleUI : Control
     
     private void SceneTreeNodeRenamed(Node node)
     {
-        // TODO: Update tree
-        GameConsole.PrintWarning($"{node.GetPath()} was renamed to ???");
+        var nodePath = node.GetParent().GetPath();
+
+        var treeContext = _tree.GetRoot();
+        for (var nodePathIndex = 0; nodePathIndex < nodePath.GetNameCount(); nodePathIndex++)
+        {
+            treeContext = treeContext.GetChildren().SingleOrDefault(child => child.GetText(0) == nodePath.GetName(nodePathIndex));
+            if (treeContext == null)
+            {
+                return;
+            }
+        }
+
+        foreach (var child in treeContext.GetChildren().ToArray())
+        {
+            treeContext.RemoveChild(child);
+        }
+        
+        SetupTreeChildren(node.GetParent(), treeContext);
+        SetContextLabel(node.GetPath());
+    }
+
+    private void SetupTreeChildren(Node nodeParent, TreeItem treeParent)
+    {
+        foreach (var child in nodeParent.GetChildren(true))
+        {
+            SetupTree(child, treeParent);
+        }
     }
 
     private string GetTreeItemPath(TreeItem item)
@@ -117,15 +142,7 @@ public partial class GameConsoleUI : Control
         newItem.Collapsed = true;
         newItem.SetText(0, current.Name);
 
-        foreach (var child in current.GetChildren(true))
-        {
-            SetupTree(child, newItem);
-        }
-    }
-
-    private void TreeItemRemoved(Node node)
-    {
-        
+        SetupTreeChildren(current, newItem);
     }
     
     public override void _Input(InputEvent @event)
@@ -212,7 +229,7 @@ public partial class GameConsoleUI : Control
         _outputLabel.Clear();
     }
     
-    public void SetContext(string path)
+    public void SetContextLabel(string path)
     {
         _contextLabel.Text = $"{path} $:";
     }

@@ -276,7 +276,7 @@ public static class GameConsole
         }
         _context = node;
         Print($"Context switched to {_context.GetPath()}");
-        _consoleUI.SetContext(_context.GetPath().ToString());
+        _consoleUI.SetContextLabel(_context.GetPath().ToString());
         return true;
     }
 
@@ -328,6 +328,12 @@ public static class GameConsole
     private static void ToggleTree()
     {
         _consoleUI.ToggleTree();
+    }
+
+    [Command(CommandName = "mv")]
+    private static void RenameNode(string newName)
+    {
+        _context.Name = newName;
     }
     
     #endregion
