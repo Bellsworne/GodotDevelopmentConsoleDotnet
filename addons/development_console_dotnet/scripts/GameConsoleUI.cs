@@ -81,6 +81,7 @@ public partial class GameConsoleUI : Control
             if (newTreeContext == null)
             {
                 newTreeContext = treeContext.CreateChild();
+                newTreeContext.SetTooltipText(0, " ");
                 newTreeContext.SetText(0, nodePath.GetName(nodePathIndex));
             }
 
@@ -111,6 +112,7 @@ public partial class GameConsoleUI : Control
     private void SetupTree(Node current, TreeItem root)
     {
         TreeItem newItem = root.CreateChild();
+        newItem.SetTooltipText(0, " ");
         newItem.SetText(0, current.Name);
 
         foreach (var child in current.GetChildren(true))
