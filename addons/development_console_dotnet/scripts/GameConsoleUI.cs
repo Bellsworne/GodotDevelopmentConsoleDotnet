@@ -40,6 +40,21 @@ public partial class GameConsoleUI : Control
         GetTree().NodeRemoved += SceneTreeNodeRemoved;
         GetTree().NodeAdded += SceneTreeNodeAdded;
         GetTree().NodeRenamed += SceneTreeNodeRenamed;
+        VisibilityChanged += () =>
+        {
+            if (Visible)
+            {
+                _inputField.GrabFocus();
+            }
+        };
+    }
+
+    public override void _Ready()
+    {
+        if (Visible)
+        {
+            _inputField.GrabFocus();
+        }
     }
 
     private void TreeItemActivated()
@@ -49,9 +64,6 @@ public partial class GameConsoleUI : Control
 
     private void SceneTreeNodeRemoved(Node node)
     {
-        // TODO: Update tree
-        // GameConsole.PrintWarning($"{node.GetPath()} was removed");
-        
         var nodePath = node.GetPath();
 
         var treeContext = _tree.GetRoot();
@@ -69,9 +81,6 @@ public partial class GameConsoleUI : Control
     
     private void SceneTreeNodeAdded(Node node)
     {
-        // TODO: Update tree
-        // GameConsole.PrintWarning($"{node.GetPath()} was added");
-        
         var nodePath = node.GetPath();
 
         var treeContext = _tree.GetRoot();
@@ -180,7 +189,6 @@ public partial class GameConsoleUI : Control
             tween.Finished += () =>
             {
                 _consoleCanTween = true;
-                _inputField.GrabFocus();
             };
         }
     }
